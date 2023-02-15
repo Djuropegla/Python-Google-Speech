@@ -1,6 +1,7 @@
 import pyaudio
 import wave
 import time
+import webbrowser
 
 FRAMES_PER_BUFFER = 3200
 FORMAT = pyaudio.paInt16
@@ -16,7 +17,7 @@ stream = p.open(
     frames_per_buffer=FRAMES_PER_BUFFER
 )
 print("Start recording")
-seconds = 3
+seconds = 5
 frames = []
 t0 = time.time()
 for i in range(0,int(RATE/FRAMES_PER_BUFFER*seconds)):
@@ -68,13 +69,15 @@ transribeID = response.json()['id']
 
 pollingEndpoint = transcriptEndpoint + '/' + transribeID
 pollingResponse = requests.get(pollingEndpoint,headers=headers)
-print(pollingResponse.json())
+#print(pollingResponse.json())
 while True:
     pollingResponse = requests.get(pollingEndpoint,headers=headers)
     if pollingResponse.json()['status'] == 'completed':
         print(time.time()-t0)
         data = pollingResponse.json()['text']
         print(data)
+        if 'OPEN YOUTUBE.' in data.upper():
+            webbrowser.open("https://www.youtube.com/")
         break
     elif pollingResponse.json()['status'] == 'error':
         print('It is what it is')

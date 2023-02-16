@@ -9,7 +9,7 @@ import wolframalpha
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id) # 0 = male, 1 =female
-activationWord = 'computer' # single word
+activationWord = 'borat' # single word
 
 # Configure browser
 # Set the path
@@ -124,6 +124,7 @@ if __name__ == '__main__':
                 speak('Opening...')
                 query = ' '.join(query[2:])
                 webbrowser.get('chrome').open_new(query)
+                # webbrowser.open_new(query)
 
             # Wikipedia
 
@@ -139,6 +140,7 @@ if __name__ == '__main__':
                 speak('Computing')
                 try:
                     result = search_wolframAlpha(query)
+                    print(result)
                     speak(result)
                 except:
                     speak('Unable to compute.')
@@ -149,9 +151,9 @@ if __name__ == '__main__':
                 newNote = parseCommand().lower()
                 now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
                 with open('note_%s.txt' % now, 'w') as newFile:
-                    newFile.write(newNote)
+                    newFile.write(now+': '+newNote)
                 speak('Note written')
             
-            if query[0] == 'exit':
+            if query[0] == 'goodbye':
                 speak('Goodbye')
                 break

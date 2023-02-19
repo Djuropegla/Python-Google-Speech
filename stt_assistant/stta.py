@@ -9,11 +9,11 @@ import wolframalpha
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id) # 0 = male, 1 =female
-activationWord = 'borat' # single word
+activationWord = 'computer' # single word
 
 # Configure browser
 # Set the path
-chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+chrome_path = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chrome_path))
 
 # wolfram_aplha client

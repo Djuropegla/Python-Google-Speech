@@ -5,18 +5,18 @@ import webbrowser
 import wikipedia
 import wolframalpha
 
-# Speech engine initialisation
+#speech engine initialisation
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id) # 0 = male, 1 =female
-activationWord = 'borat' # single word
+activationWord = 'computer' # single word
 
-# Configure browser
-# Set the path
+#configure browser
+#set the path to chrome
 chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chrome_path))
 
-# wolfram_aplha client
+#wolfram_aplha client
 appId = '29H459-RE2K9P8UX2'
 wolframClient = wolframalpha.Client(appId)
 
@@ -67,7 +67,6 @@ def listOrDict(var):
         return var['plaintext']
 
 def search_wolframAlpha(query = ''):
-
     response = wolframClient.query(query)
 
     # @success: wolfram was able to resolve the query
@@ -76,22 +75,22 @@ def search_wolframAlpha(query = ''):
 
     if response['@success'] == 'false':
         return 'Could not compute'
+    #then if the query was resolved
     else:
         result = ''
-        # question
-        pod0 = response['pod'][0]
-        pod1 = response['pod'][1]
-        # may contain the answer, has the highest confidence value
-        # if it's primary or has the title of reesult or definition, then it's the official result
-        if (('result') in pod1['@title'].lower() or (pod1.get('@primary', 'false')=='true') or ('definition' in pod1['@title'].lower())):
+        pod0 = response['pod'][0]   #question
+        pod1 = response['pod'][1]   # may contain the answer, has the highest confidence value - result could contain more pods
+        # if it has 'result' in the title or it has 'primary' flag set to true or 'definition' in the title, then it's the official result
+        if (('result' in pod1['@title'].lower()) or (pod1.get('@primary', 'false')=='true') or ('definition' in pod1['@title'].lower())):
             #get the result
             result = listOrDict(pod1['subpod'])
             # remove the bracketed section
             return result.split('(')[0]
+            #return result
         else:
             question = listOrDict(pod0['subpod'])
             #remove the bracketet section
-            return question.split('(')[0]
+            question.split('(')[0]
             #search wikipedia instead
             speak('Computation failed. Querying universal databank')
             return search_wikipedia(question)
@@ -101,7 +100,7 @@ def search_wolframAlpha(query = ''):
 
 # main loop
 if __name__ == '__main__':
-    speak('All systems nominal.')
+    speak('All systems working.')
 
     while True:
         # parse as list
@@ -113,20 +112,20 @@ if __name__ == '__main__':
             #list commands
             if query[0] == 'say':
                 if 'hello' in query:
-                    speak('Greetings, all.')
+                    speak('Greetings.')
                 else:
                     query.pop(0) # remove say
                     speech = ' '.join(query)
                     speak(speech)
 
-            # Navigation
+            #web navigation
             if query[0] == 'go' and query[1] == 'to':
                 speak('Opening...')
                 query = ' '.join(query[2:])
-                webbrowser.get('chrome').open_new(query)
-                # webbrowser.open_new(query)
+                # webbrowser.get('chrome').open_new(query)
+                webbrowser.open_new(query)
 
-            # Wikipedia
+            #wiki
 
             if query[0] == 'wikipedia':
                 query = ' '.join(query[1:])
@@ -134,8 +133,8 @@ if __name__ == '__main__':
                 result = search_wikipedia(query)
                 speak(result)
 
-            # wolfram_alpha
-            if query[0] == 'compute' or query[0] == 'computer':
+            #wolfram_alpha
+            if query[0] == 'compute' or query[0] == 'computer' or (query[0] == 'wolfram' and query[1] == 'alpha'):
                 query = ' '.join(query[1:])
                 speak('Computing')
                 try:
@@ -154,6 +153,6 @@ if __name__ == '__main__':
                     newFile.write(now+': '+newNote)
                 speak('Note written')
             
-            if query[0] == 'goodbye':
+            if query[0] == 'goodbye' or query[0] == 'exit':
                 speak('Goodbye')
                 break

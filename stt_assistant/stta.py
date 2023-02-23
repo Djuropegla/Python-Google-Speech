@@ -1,4 +1,5 @@
 from datetime import datetime
+from fuzzywuzzy import fuzz
 import speech_recognition as sr
 import pyttsx3
 import webbrowser
@@ -9,12 +10,14 @@ import wolframalpha
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id) # 0 = male, 1 =female
-activationWord = 'computer' # single word
+activationWord = 'assistant' # single word
 
 #configure browser
 #set the path to chrome
 chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chrome_path))
+uniWebQuery = "website of faculty of organizational sciences"
+estudentQuery = "e student website"
 
 #wolfram_aplha client
 appId = '29H459-RE2K9P8UX2'
@@ -96,7 +99,8 @@ def search_wolframAlpha(query = ''):
             return search_wikipedia(question)
 
 
-
+nekiString1 = str
+nekiString2 = str
 
 # main loop
 if __name__ == '__main__':
@@ -105,8 +109,10 @@ if __name__ == '__main__':
     while True:
         # parse as list
         query = parseCommand().lower().split()
-    
-        if query[0] == activationWord:
+
+        similarity = fuzz.ratio(query[0], activationWord)
+
+        if similarity > 80:
             query.pop(0)
 
             #list commands
@@ -118,12 +124,35 @@ if __name__ == '__main__':
                     speech = ' '.join(query)
                     speak(speech)
 
+            if query[0] == 'compare':
+                speak('Ready to record the first string')
+                nekiString1 = parseCommand().lower()
+                speak('Ready to record the second string')
+                nekiString2 = parseCommand().lower()
+                speak('Comparing...')
+                similarity_ratio = fuzz.ratio(nekiString1, nekiString2) #outputs integer between 0 and 100
+                print(similarity_ratio) 
+                speak(similarity_ratio)
+
             #web navigation
             if query[0] == 'go' and query[1] == 'to':
-                speak('Opening...')
-                query = ' '.join(query[2:])
-                # webbrowser.get('chrome').open_new(query)
-                webbrowser.open_new(query)
+                if ('e' in query) and ('student' in query):
+                    similarity = fuzz.ratio((' '.join(query[2:])), estudentQuery)
+                    similarity *=1.2
+                    if similarity >= 60:
+                        speak('Opening the e student website')
+                        webbrowser.get('chrome').open_new('https://student.fon.bg.ac.rs/security/login.jsf')
+                elif ('website' in query) and ('faculty' in query):
+                    similarity = fuzz.ratio((' '.join(query[2:])), uniWebQuery)
+                    similarity *=1.1
+                    if similarity >= 60:
+                        speak('Opening the official website of the Faculty of Organizational Sciences.')
+                        webbrowser.get('chrome').open_new('http://www.fon.bg.ac.rs')
+                else:
+                    speak('Opening...')
+                    query = ' '.join(query[2:])
+                    webbrowser.get('chrome').open_new(query)
+                    # webbrowser.open_new(query)
 
             #wiki
 
@@ -134,7 +163,7 @@ if __name__ == '__main__':
                 speak(result)
 
             #wolfram_alpha
-            if query[0] == 'compute' or query[0] == 'computer' or (query[0] == 'wolfram' and query[1] == 'alpha'):
+            if query[0] == 'compute' or query[0] == 'computer':
                 query = ' '.join(query[1:])
                 speak('Computing')
                 try:
@@ -143,14 +172,15 @@ if __name__ == '__main__':
                     speak(result)
                 except:
                     speak('Unable to compute.')
+                    continue
             
-            # note taking
+            #taking a note
             if query[0] == 'log':
                 speak('Ready to record your note')
                 newNote = parseCommand().lower()
                 now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
                 with open('note_%s.txt' % now, 'w') as newFile:
-                    newFile.write(now+': '+newNote)
+                    newFile.write('date: '+now+'\n'+newNote)
                 speak('Note written')
             
             if query[0] == 'goodbye' or query[0] == 'exit':
